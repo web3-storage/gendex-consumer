@@ -36,6 +36,7 @@ export default {
    * @param {Environment} env
    */
   async queue (batch, env) {
+    console.log(`consuming batch of ${batch.messages.length} messages`)
     const endpoint = new URL(env.GENDEX_API_URL)
     for (const message of batch.messages) {
       const root = Link.parse(message.body.root)
