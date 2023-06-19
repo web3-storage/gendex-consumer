@@ -1,0 +1,83 @@
+name = "gendex-consumer"
+main = "./dist/worker.mjs"
+compatibility_date = "2023-06-19"
+
+[build]
+command = "npm run build:debug"
+
+[[queues.producers]]
+ queue = "gendex-dev"
+ binding = "GENDEX_QUEUE"
+
+[[queues.consumers]]
+  queue = "gendex-dev"
+
+# PROD!
+[env.production]
+account_id = "fffa4b4363a7e5250af8357087263b3a"
+
+[[env.production.queues.producers]]
+ queue = "gendex-production"
+ binding = "GENDEX_QUEUE"
+
+[[env.production.queues.consumers]]
+  queue = "gendex-prod"
+  dead_letter_queue = "gendex-dlq-prod"
+  max_batch_size = 100
+  max_batch_timeout = 30
+
+[env.production.build]
+command = "npm run build"
+
+[env.production.vars]
+GENDEX_API_URL = "https://gendex.dag.haus"
+
+# Staging!
+[env.staging]
+account_id = "fffa4b4363a7e5250af8357087263b3a"
+
+[[env.staging.queues.producers]]
+ queue = "gendex-staging"
+ binding = "GENDEX_QUEUE"
+
+[[env.staging.queues.consumers]]
+  queue = "gendex-staging"
+  dead_letter_queue = "gendex-dlq-staging"
+  max_batch_size = 100
+  max_batch_timeout = 30
+
+[env.staging.build]
+command = "npm run build"
+
+[env.staging.vars]
+GENDEX_API_URL = "https://gendex-staging.dag.haus"
+
+# Test!
+[env.test]
+workers_dev = true
+
+[[env.test.queues.producers]]
+ queue = "gendex-test"
+ binding = "GENDEX_QUEUE"
+
+[[env.test.queues.consumers]]
+  queue = "gendex-test"
+
+[env.test.vars]
+DEBUG = "true"
+
+# Developers! Developers! Developers!
+
+[env.alanshaw]
+workers_dev = true
+account_id = "4fe12d085474d33bdcfd8e9bed4d8f95"
+
+[[env.alanshaw.queues.producers]]
+ queue = "gendex-alanshaw"
+ binding = "GENDEX_QUEUE"
+
+[[env.alanshaw.queues.consumers]]
+  queue = "gendex-alanshaw"
+
+[env.alanshaw.vars]
+DEBUG = "true"

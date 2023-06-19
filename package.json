@@ -1,0 +1,37 @@
+{
+  "name": "gendex-consumer",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "wrangler dev",
+    "deploy": "wrangler publish",
+    "build": "esbuild --bundle src/index.js --format=esm --sourcemap --minify --outfile=dist/worker.mjs",
+    "build:debug": "esbuild --bundle src/index.js --format=esm --outfile=dist/worker.mjs",
+    "test": "npm run build:debug && entail",
+    "lint": "standard"
+  },
+  "author": "Alan Shaw",
+  "license": "Apache-2.0 OR MIT",
+  "dependencies": {
+    "@ipld/dag-json": "^10.1.1",
+    "cardex": "^2.2.3",
+    "multiformats": "^12.0.1",
+    "ndjson-web": "^1.0.0",
+    "p-queue": "^7.3.4",
+    "p-retry": "^5.1.2"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20230518.0",
+    "entail": "^2.0.0",
+    "esbuild": "^0.18.4",
+    "standard": "^17.1.0",
+    "wrangler": "^3.1.0"
+  },
+  "standard": {
+    "ignore": [
+      "*.ts"
+    ]
+  }
+}
