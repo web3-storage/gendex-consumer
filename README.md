@@ -30,7 +30,7 @@ Send a message to the queue with the format:
 }
 ```
 
-Passing shard CIDs allows gendex to not require a root CID and thus allows it to not require a DUDEWHERE index (to lookup shard CIDs).
+Passing shard CIDs allows gendex to not require a root CID and thus allows it to not require a DUDEWHERE index (to lookup shard CIDs). It also removes the hard dependency on SATNAV, in the event that there are no indexes in SATNAV for the passed shards, they can be materialized from the source data as needed.
 
 In current NFT.Storage and web3.storage APIs we know the shards because linkdex returns them (and we'll only submit to gendex when linkdex says that a DAG is "Complete" in structure). In the new w3up APIs our `upload/add` invocation includes `root` and `shards` allowing us to submit to gendex when this call is made.
 
