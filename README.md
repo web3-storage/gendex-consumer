@@ -30,6 +30,12 @@ Send a message to the queue with the format:
 }
 ```
 
+Passing shard CIDs allows gendex to not require a root CID and thus allows it to not require a DUDEWHERE index (to lookup shard CIDs).
+
+In current NFT.Storage and web3.storage APIs we know the shards because linkdex returns them (and we'll only submit to gendex when linkdex says that a DAG is "Complete" in structure). In the new w3up APIs our `upload/add` invocation includes `root` and `shards` allowing us to submit to gendex when this call is made.
+
+Setting `recursive: false` allows individual blocks requested by bitswap that are not yet indexed in blockly to be added from information available in the current Elastic IPFS DynamoDB.
+
 ### Manually add a message to the queue
 
 ```sh
