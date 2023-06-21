@@ -2,7 +2,7 @@ import * as Link from 'multiformats/link'
 import * as raw from 'multiformats/codecs/raw'
 import { Map as LinkMap } from 'lnmap'
 import { Set as LinkSet } from 'lnset'
-import * as Client from './client.js'
+import { Client } from './client.js'
 
 /** Maximum links a single block is allowed to have. */
 const MAX_BLOCK_LINKS = 3000
@@ -17,8 +17,8 @@ export default {
       return new Response('method not allowed', { status: 405 })
     }
     const reqURL = new URL(request.url)
-    if (!reqURL.pathname.startsWith('/send')) {
-      return new Response('method not allowed', { status: 404 })
+    if (!(reqURL.pathname.startsWith('/send') || reqURL.pathname.startsWith('/process'))) {
+      return new Response('not found', { status: 404 })
     }
     const message = await request.json()
     try {
@@ -28,10 +28,26 @@ export default {
       return new Response(`invalid message: ${err.message}`, { status: 400 })
     }
     try {
-      await env.GENDEX_QUEUE.send(message)
+      if (reqURL.pathname.startsWith('/send')) {
+        await env.GENDEX_QUEUE.send(message)
+      } else {
+        if (message.recursive) throw new Error('recursive not supported')
+        const client = new Client(new URL(env.GENDEX_API_URL))
+        const messages = [
+          decodeMessage({
+            id: Date.now().toString(),
+            timestamp: new Date(),
+            body: message,
+            ack: () => {},
+            retry: () => {}
+          })
+        ]
+        const queue = { send: async () => {} }
+        await processBatch(queue, client, messages)
+      }
     } catch (err) {
       console.error(err)
-      return new Response(`failed to queue message: ${err.message}`, { status: 500 })
+      return new Response(`failed to queue message: ${env.DEBUG ? err.stack : err.message}`, { status: 500 })
     }
     return new Response('send success 👍')
   },
@@ -40,58 +56,65 @@ export default {
    * @param {import('./bindings').Environment} env
    */
   async queue (batch, env) {
-    const endpoint = new URL(env.GENDEX_API_URL)
+    const client = new Client(new URL(env.GENDEX_API_URL))
     const messages = batch.messages.map(decodeMessage)
+    await processBatch(env.GENDEX_QUEUE, client, messages)
+  }
+}
 
-    /** @type {Map<import('multiformats').UnknownLink, import('@cloudflare/workers-types').Message<import('./bindings').Body>[]>} */
-    const groups = new LinkMap()
-    for (const message of messages) {
-      let group = groups.get(message.body.root ?? message.body.block)
-      if (!group) {
-        group = []
-        groups.set(message.body.root ?? message.body.block, group)
-      }
-      group.push(message)
+/**
+ * @param {Pick<import('@cloudflare/workers-types').Queue<import('./bindings').RawBody>, 'send'>} queue
+ * @param {Client} gendex
+ * @param {import('@cloudflare/workers-types').Message<import('./bindings').Body>[]} messages
+ */
+async function processBatch (queue, gendex, messages) {
+  /** @type {Map<import('multiformats').UnknownLink, import('@cloudflare/workers-types').Message<import('./bindings').Body>[]>} */
+  const groups = new LinkMap()
+  for (const message of messages) {
+    let group = groups.get(message.body.root ?? message.body.block)
+    if (!group) {
+      group = []
+      groups.set(message.body.root ?? message.body.block, group)
     }
+    group.push(message)
+  }
 
-    for (const [, messages] of groups) {
-      /** @type {Set<import('cardex/api').CARLink>} */
-      const shards = new LinkSet()
-      messages.forEach(m => m.body.shards.forEach(s => shards.add(s)))
-      const blockIndex = await Client.getIndex(endpoint, [...shards.values()])
+  for (const [, messages] of groups) {
+    /** @type {Set<import('cardex/api').CARLink>} */
+    const shards = new LinkSet()
+    messages.forEach(m => m.body.shards.forEach(s => shards.add(s)))
+    const blockIndex = await gendex.getIndex([...shards.values()])
 
-      for (const message of messages) {
-        try {
-          /** @type {import('multiformats').UnknownLink[]} */
-          let links = []
-          if (message.body.block.code !== raw.code) {
-            const result = await Client.getBlockLinks(endpoint, blockIndex, message.body.block)
-            links = result.links
-            if (links.length > MAX_BLOCK_LINKS) {
-              throw Object.assign(new RangeError(`maximum single block links exceeded: ${message.body.block}`), { code: 'ERR_MAX_LINKS' })
-            }
+    for (const message of messages) {
+      try {
+        /** @type {import('multiformats').UnknownLink[]} */
+        let links = []
+        if (message.body.block.code !== raw.code) {
+          links = await gendex.getBlockLinks(blockIndex, message.body.block)
+          if (links.length > MAX_BLOCK_LINKS) {
+            throw Object.assign(new RangeError(`maximum single block links exceeded: ${message.body.block}`), { code: 'ERR_MAX_LINKS' })
           }
+        }
 
-          await Client.putBlockIndex(endpoint, blockIndex, message.body.block, links)
-          if (message.body.recursive) {
-            await Promise.all(links.map(link => (
-              env.GENDEX_QUEUE.send({
-                root: message.body.root?.toString(),
-                block: link.toString(),
-                shards: message.body.shards.map(s => s.toString()),
-                recursive: true
-              })
-            )))
-          }
+        await gendex.putBlockIndex(blockIndex, message.body.block, links)
+        if (message.body.recursive) {
+          await Promise.all(links.map(link => (
+            queue.send({
+              root: message.body.root?.toString(),
+              block: link.toString(),
+              shards: message.body.shards.map(s => s.toString()),
+              recursive: true
+            })
+          )))
+        }
 
-          message.ack()
-        } catch (err) {
-          if (err.code === 'ERR_MAX_LINKS') {
-            message.ack() // do not retry when block exceeds max links
-          } else {
-            console.error(err)
-            message.retry()
-          }
+        message.ack()
+      } catch (err) {
+        if (err.code === 'ERR_MAX_LINKS') {
+          message.ack() // do not retry when block exceeds max links
+        } else {
+          console.error(err)
+          message.retry()
         }
       }
     }

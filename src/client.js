@@ -6,15 +6,46 @@ import { MultihashIndexSortedWriter } from 'cardex/multihash-index-sorted'
 import * as json from '@ipld/dag-json'
 import { Map as LinkMap } from 'lnmap'
 
+export class Client {
+  /** @param {URL} endpoint */
+  constructor (endpoint) {
+    this.endpoint = endpoint
+  }
+
+  /**
+   * @param {import('./bindings').BlockIndex} blockIndex
+   * @param {import('multiformats').UnknownLink} cid
+   * @param {import('multiformats').UnknownLink[]} links
+   */
+  putBlockIndex (blockIndex, cid, links) {
+    return putBlockIndex(this, blockIndex, cid, links)
+  }
+
+  /**
+   * @param {import('cardex/api').CARLink[]} shards
+   */
+  getIndex (shards) {
+    return getIndex(this, shards)
+  }
+
+  /**
+   * @param {import('./bindings').BlockIndex} blockIndex
+   * @param {import('multiformats').UnknownLink} cid
+   */
+  getBlockLinks (blockIndex, cid) {
+    return getBlockLinks(this, blockIndex, cid)
+  }
+}
+
 /**
  * Write an index for the provided cid.
- * @param {URL} endpoint
+ * @param {{ endpoint: URL }} service
  * @param {import('./bindings').BlockIndex} blockIndex
  * @param {import('multiformats').UnknownLink} cid
  * @param {import('multiformats').UnknownLink[]} links
  */
-export async function putBlockIndex (endpoint, blockIndex, cid, links) {
-  const res = await fetch(new URL(`/block/${cid}`, endpoint).toString(), {
+export async function putBlockIndex (service, blockIndex, cid, links) {
+  const res = await fetch(new URL(`/block/${cid}`, service.endpoint).toString(), {
     method: 'PUT',
     // @ts-expect-error
     body: writeMultiIndex(blockIndex, [cid, ...links])
@@ -24,11 +55,11 @@ export async function putBlockIndex (endpoint, blockIndex, cid, links) {
 
 /**
  * Get a block index for the given shards.
- * @param {URL} endpoint
+ * @param {{ endpoint: URL }} service
  * @param {import('cardex/api').CARLink[]} shards
  */
-export async function getIndex (endpoint, shards) {
-  const res = await fetch(new URL('/index', endpoint).toString(), {
+export async function getIndex (service, shards) {
+  const res = await fetch(new URL('/index', service.endpoint).toString(), {
     method: 'POST',
     body: json.encode(shards)
   })
@@ -38,13 +69,13 @@ export async function getIndex (endpoint, shards) {
 
 /**
  * Get links for a block.
- * @param {URL} endpoint
+ * @param {{ endpoint: URL }} service
  * @param {import('./bindings').BlockIndex} blockIndex
  * @param {import('multiformats').UnknownLink} cid
- * @returns {Promise<{ cid: import('multiformats').UnknownLink, links: import('multiformats').UnknownLink[], meta: any }>}
+ * @returns {Promise<import('multiformats').UnknownLink[]>}
  */
-export async function getBlockLinks (endpoint, blockIndex, cid) {
-  const res = await fetch(new URL(`/links/${cid}`, endpoint).toString(), {
+export async function getBlockLinks (service, blockIndex, cid) {
+  const res = await fetch(new URL(`/links/${cid}`, service.endpoint).toString(), {
     method: 'POST',
     // @ts-expect-error
     body: writeMultiIndex(blockIndex, [cid])

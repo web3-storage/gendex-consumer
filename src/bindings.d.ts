@@ -3,6 +3,7 @@ import type { CARLink } from 'cardex/api'
 import type { Queue } from '@cloudflare/workers-types'
 
 export interface Environment {
+  DEBUG?: string
   GENDEX_API_URL: string
   GENDEX_QUEUE: Queue<RawBody>
 }

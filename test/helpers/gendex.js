@@ -79,7 +79,7 @@ export async function mockGendexAPI (root, shards) {
       console.log(`     ${blockCID} has ${blockLinks.length} links:`)
       blockLinks.forEach((cid, i) => console.log(`       ${i + 1}. ${cid}`))
 
-      res.write(json.encode({ cid: blockCID, links: blockLinks }))
+      res.write(json.encode(blockLinks))
       res.end()
     } else {
       res.statusCode = 404
