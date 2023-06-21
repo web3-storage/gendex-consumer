@@ -29,7 +29,6 @@ Send a message to the queue with the format:
   recursive?: boolean
 }
 ```
-where `root` is the root CID of a DAG to generate indexes for.
 
 ### Manually add a message to the queue
 
