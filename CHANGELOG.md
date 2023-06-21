@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/web3-storage/gendex-consumer/compare/v1.0.0...v1.1.0) (2023-06-21)
+
+
+### Features
+
+* working with test ([a7cd099](https://github.com/web3-storage/gendex-consumer/commit/a7cd099acd1b52b2d5a22761f166cb05abc96673))
+
+
+### Bug Fixes
+
+* remove has, move to API ([33e6085](https://github.com/web3-storage/gendex-consumer/commit/33e60851f756062f69d1a5daec0dfac833276823))
+
 ## 1.0.0 (2023-06-19)
 
 
