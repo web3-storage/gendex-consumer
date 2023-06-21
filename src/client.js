@@ -7,19 +7,6 @@ import * as json from '@ipld/dag-json'
 import { Map as LinkMap } from 'lnmap'
 
 /**
- * Determine if a block index exists.
- * @param {URL} endpoint
- * @param {import('multiformats').UnknownLink} cid
- */
-export async function hasBlockIndex (endpoint, cid) {
-  const url = new URL(`/block/${cid}`, endpoint).toString()
-  const res = await fetch(url, { method: 'HEAD' })
-  if (res.status === 200) return true
-  if (res.status === 404) return false
-  throw new Error(`unexpected block index response status: ${res.status}`)
-}
-
-/**
  * Write an index for the provided cid.
  * @param {URL} endpoint
  * @param {import('./bindings').BlockIndex} blockIndex

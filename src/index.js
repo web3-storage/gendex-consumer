@@ -72,23 +72,16 @@ export default {
             }
           }
 
-          const exists = await Client.hasBlockIndex(endpoint, message.body.block)
-          if (!exists) {
-            await Client.putBlockIndex(endpoint, blockIndex, message.body.block, links)
-          }
-
+          await Client.putBlockIndex(endpoint, blockIndex, message.body.block, links)
           if (message.body.recursive) {
-            await Promise.all(links.map(async link => {
-              const exists = await Client.hasBlockIndex(endpoint, link)
-              if (!exists) {
-                await env.GENDEX_QUEUE.send({
-                  root: message.body.root?.toString(),
-                  block: link.toString(),
-                  shards: message.body.shards.map(s => s.toString()),
-                  recursive: true
-                })
-              }
-            }))
+            await Promise.all(links.map(link => (
+              env.GENDEX_QUEUE.send({
+                root: message.body.root?.toString(),
+                block: link.toString(),
+                shards: message.body.shards.map(s => s.toString()),
+                recursive: true
+              })
+            )))
           }
 
           message.ack()
@@ -128,6 +121,7 @@ function decodeMessageBody (body) {
   return {
     root: body.root ? Link.parse(body.root) : undefined,
     block: Link.parse(body.block),
-    shards: body.shards.map(s => Link.parse(s))
+    shards: body.shards.map(s => Link.parse(s)),
+    recursive: body.recursive
   }
 }

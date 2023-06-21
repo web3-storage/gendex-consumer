@@ -38,10 +38,6 @@ export async function mockGendexAPI (root, shards) {
       console.log(`    ${todoCIDs.size} CIDs TODO`)
       if (todoCIDs.size === 0) resolve()
       res.end()
-    } else if (req.method === 'HEAD' && req.url?.startsWith('/block')) {
-      const cid = Link.parse(req.url.split('/')[2])
-      res.statusCode = todoCIDs.has(cid) ? 404 : 200
-      res.end()
     } else if (req.method === 'POST' && req.url === '/index') {
       const chunks = []
       for await (const chunk of req) {
