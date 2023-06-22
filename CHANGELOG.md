@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/web3-storage/gendex-consumer/compare/v1.1.0...v1.2.0) (2023-06-21)
+
+
+### Features
+
+* direct process ([8ab25e4](https://github.com/web3-storage/gendex-consumer/commit/8ab25e4ab9b2892e348baedb189d3616c6f274f0))
+
 ## [1.1.0](https://github.com/web3-storage/gendex-consumer/compare/v1.0.0...v1.1.0) (2023-06-21)
 
 

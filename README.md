@@ -12,7 +12,7 @@ Cloudlfare queue consumer that submits blocks to gendex in order to build block 
 Send a message to the queue with the format: 
 
 ```ts
-{
+interface Message {
   /**
    * Base encoded string CID of block to index.
    */
