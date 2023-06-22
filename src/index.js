@@ -98,17 +98,21 @@ async function processBatch (queue, gendex, messages) {
           }
         }
 
-        await gendex.putBlockIndex(blockIndex, message.body.block, links)
-        if (message.body.recursive) {
-          await Promise.all(links.map(link => (
-            queue.send({
-              root: message.body.root?.toString(),
-              block: link.toString(),
-              shards: message.body.shards.map(s => s.toString()),
-              recursive: true
-            })
-          )))
-        }
+        await Promise.all([
+          gendex.putBlockIndex(blockIndex, message.body.block, links),
+          (async () => {
+            if (message.body.recursive) {
+              await Promise.all(links.map(link => (
+                queue.send({
+                  root: message.body.root?.toString(),
+                  block: link.toString(),
+                  shards: message.body.shards.map(s => s.toString()),
+                  recursive: true
+                })
+              )))
+            }
+          })()
+        ])
 
         message.ack()
       } catch (err) {
