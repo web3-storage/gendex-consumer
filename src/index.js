@@ -3,11 +3,15 @@ import * as raw from 'multiformats/codecs/raw'
 import { Map as LinkMap } from 'lnmap'
 import { Set as LinkSet } from 'lnset'
 import all from 'p-all'
+import hashlru from 'hashlru'
 import { Client } from './client.js'
 
 /** Maximum links a single block is allowed to have. */
 const MAX_BLOCK_LINKS = 3000
 const CONCURRENCY = 10
+const MAX_CACHED_INDEXES = 500
+
+const indexCache = hashlru(MAX_CACHED_INDEXES)
 
 export default {
   /**
@@ -81,11 +85,12 @@ async function processBatch (queue, gendex, messages) {
     group.push(message)
   }
 
-  await all([...groups].map(([, messages]) => async () => {
+  await all([...groups].map(([root, messages]) => async () => {
     /** @type {Set<import('cardex/api').CARLink>} */
     const shards = new LinkSet()
     messages.forEach(m => m.body.shards.forEach(s => shards.add(s)))
-    const blockIndex = await gendex.getIndex([...shards.values()])
+    /** @type {import('./bindings').BlockIndex} */
+    const blockIndex = indexCache.get(root.toString()) ?? await gendex.getIndex([...shards.values()])
 
     await all(messages.map(message => async () => {
       try {
@@ -99,7 +104,7 @@ async function processBatch (queue, gendex, messages) {
         }
 
         const tasks = [gendex.putBlockIndex(blockIndex, message.body.block, links)]
-        if (message.body.recursive) {
+        if (message.body.recursive && links.length) {
           // batch into groups of 2:
           // > items are limited to 128 KB each, and the total size of the array cannot exceed 256 KB
           // > https://developers.cloudflare.com/queues/platform/javascript-apis/#queue
@@ -115,6 +120,7 @@ async function processBatch (queue, gendex, messages) {
             })))
             tasks.push(task)
           }
+          indexCache.set(root.toString(), blockIndex)
         }
 
         await Promise.all(tasks)
