@@ -44,7 +44,7 @@ export default {
             retry: () => {}
           })
         ]
-        const queue = { send: async () => {} }
+        const queue = { sendBatch: async () => {} }
         await processBatch(queue, client, messages)
       }
     } catch (err) {
@@ -65,7 +65,7 @@ export default {
 }
 
 /**
- * @param {Pick<import('@cloudflare/workers-types').Queue<import('./bindings').RawBody>, 'send'>} queue
+ * @param {Pick<import('@cloudflare/workers-types').Queue<import('./bindings').RawBody>, 'sendBatch'>} queue
  * @param {Client} gendex
  * @param {import('@cloudflare/workers-types').Message<import('./bindings').Body>[]} messages
  */
@@ -98,22 +98,23 @@ async function processBatch (queue, gendex, messages) {
           }
         }
 
-        await Promise.all([
-          gendex.putBlockIndex(blockIndex, message.body.block, links),
-          (async () => {
-            if (message.body.recursive) {
-              await Promise.all(links.map(link => (
-                queue.send({
-                  root: message.body.root?.toString(),
-                  block: link.toString(),
-                  shards: message.body.shards.map(s => s.toString()),
-                  recursive: true
-                })
-              )))
-            }
-          })()
-        ])
+        const tasks = [gendex.putBlockIndex(blockIndex, message.body.block, links)]
+        if (message.body.recursive) {
+          for (let i = 0; i < links.length; i += 2) {
+            const batch = i + 1 < links.length ? [links[i], links[i + 1]] : [links[i]]
+            const task = queue.sendBatch(batch.map(link => ({
+              body: {
+                root: message.body.root?.toString(),
+                block: link.toString(),
+                shards: message.body.shards.map(s => s.toString()),
+                recursive: true
+              }
+            })))
+            tasks.push(task)
+          }
+        }
 
+        await Promise.all(tasks)
         message.ack()
       } catch (err) {
         if (err.code === 'ERR_MAX_LINKS') {
