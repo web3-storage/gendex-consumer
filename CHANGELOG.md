@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.0](https://github.com/web3-storage/gendex-consumer/compare/v1.8.0...v1.9.0) (2023-06-22)
+
+
+### Features
+
+* add index cache ([5a44097](https://github.com/web3-storage/gendex-consumer/commit/5a44097d742d636550b07a03d72fc26a4f3abe11))
+
 ## [1.8.0](https://github.com/web3-storage/gendex-consumer/compare/v1.7.0...v1.8.0) (2023-06-22)
 
 
