@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.4.0](https://github.com/web3-storage/gendex-consumer/compare/v1.3.0...v1.4.0) (2023-06-22)
+
+
+### Features
+
+* use service worker binding ([602a7dd](https://github.com/web3-storage/gendex-consumer/commit/602a7dd962eccb7793b8f9a71564d63793e40e91))
+
+
+### Bug Fixes
+
+* bind to correct service ([c46f7c6](https://github.com/web3-storage/gendex-consumer/commit/c46f7c66d34ef61746af65fafdf29259f69cc080))
+
 ## [1.3.0](https://github.com/web3-storage/gendex-consumer/compare/v1.2.2...v1.3.0) (2023-06-22)
 
 
