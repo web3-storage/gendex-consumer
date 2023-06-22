@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/web3-storage/gendex-consumer/compare/v1.5.0...v1.6.0) (2023-06-22)
+
+
+### Features
+
+* use sendBatch ([69733b0](https://github.com/web3-storage/gendex-consumer/commit/69733b080a0035995223a7b6c04ce2d327b0c634))
+
 ## [1.5.0](https://github.com/web3-storage/gendex-consumer/compare/v1.4.0...v1.5.0) (2023-06-22)
 
 
