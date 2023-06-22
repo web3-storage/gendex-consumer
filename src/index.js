@@ -9,7 +9,7 @@ import { Client } from './client.js'
 /** Maximum links a single block is allowed to have. */
 const MAX_BLOCK_LINKS = 3000
 const CONCURRENCY = 10
-const MAX_CACHED_INDEXES = 500
+const MAX_CACHED_INDEXES = 1000
 
 const indexCache = hashlru(MAX_CACHED_INDEXES)
 
