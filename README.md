@@ -1,5 +1,10 @@
 # gendex-consumer
 
+<p>
+  <a href="https://github.com/web3-storage/gendex-consumer/actions/workflows/release.yml"><img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/web3-storage/gendex-consumer/test.yml?branch=main&style=for-the-badge" /></a>
+  <a href="https://github.com/web3-storage/gendex-consumer/blob/main/LICENSE.md"><img alt="License: Apache-2.0 OR MIT" src="https://img.shields.io/badge/LICENSE-Apache--2.0%20OR%20MIT-yellow?style=for-the-badge" /></a>
+</p>
+
 Cloudlfare queue consumer that submits blocks to gendex in order to build block indexes for uploaded DAGs.
 
 ## Usage
@@ -38,8 +43,19 @@ Setting `recursive: false` allows individual blocks requested by bitswap that ar
 
 ### Manually add a message to the queue
 
+e.g.
+
 ```sh
-curl -X POST http://gendex-consumer.worker/send
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{"block":"bafybeigwaxpc64gtjs25brjozyktwhdnr3hirrbnjyq746gd26mhe7jllm","shards":["bagbaierarysgidzym55qcdud66parpzxo6jb2wj3vpzax6lhtw7vaxmy224a"],"root":"bafybeigwaxpc64gtjs25brjozyktwhdnr3hirrbnjyq746gd26mhe7jllm","recursive":true}' \
+  https://gendex-consumer-env.org.workers.dev/send
 ```
 
-The request body should be a JSON encoded message with the above format.
+## Contributing
+
+Feel free to join in. All welcome. Please [open an issue](https://github.com/web3-storage/gendex-consumer/issues)!
+
+## License
+
+Dual-licensed under [MIT + Apache 2.0](https://github.com/web3-storage/gendex-consumer/blob/main/LICENSE.md)
