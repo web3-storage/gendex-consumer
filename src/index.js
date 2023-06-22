@@ -34,7 +34,7 @@ export default {
         await env.GENDEX_QUEUE.send(message)
       } else {
         if (message.recursive) throw new Error('recursive not supported')
-        const client = new Client(new URL(env.GENDEX_API_URL))
+        const client = new Client(new URL(env.GENDEX_API_URL), env.GENDEX_SERVICE ?? globalThis)
         const messages = [
           decodeMessage({
             id: Date.now().toString(),
@@ -58,7 +58,7 @@ export default {
    * @param {import('./bindings').Environment} env
    */
   async queue (batch, env) {
-    const client = new Client(new URL(env.GENDEX_API_URL))
+    const client = new Client(new URL(env.GENDEX_API_URL), env.GENDEX_SERVICE ?? globalThis)
     const messages = batch.messages.map(decodeMessage)
     await processBatch(env.GENDEX_QUEUE, client, messages)
   }

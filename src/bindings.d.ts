@@ -2,9 +2,14 @@ import type { UnknownLink } from 'multiformats/link'
 import type { CARLink } from 'cardex/api'
 import type { Queue } from '@cloudflare/workers-types'
 
+export interface RequestDispatcher {
+  fetch: typeof fetch
+}
+
 export interface Environment {
   DEBUG?: string
   GENDEX_API_URL: string
+  GENDEX_SERVICE: ServiceWorkerGlobalScope
   GENDEX_QUEUE: Queue<RawBody>
 }
 

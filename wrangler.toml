@@ -5,6 +5,10 @@ compatibility_date = "2023-06-19"
 [build]
 command = "npm run build:debug"
 
+services = [
+  { binding = "GENDEX_SERVICE", service = "gendex-consumer-dev" }
+]
+
 [[queues.producers]]
  queue = "gendex-dev"
  binding = "GENDEX_QUEUE"
@@ -32,6 +36,10 @@ command = "npm run build"
 [env.production.vars]
 GENDEX_API_URL = "https://gendex.dag.haus"
 
+[[env.production.services]]
+binding = "GENDEX_SERVICE"
+service = "gendex-consumer-production"
+
 # Staging!
 [env.staging]
 account_id = "fffa4b4363a7e5250af8357087263b3a"
@@ -53,19 +61,9 @@ command = "npm run build"
 DEBUG = "true"
 GENDEX_API_URL = "https://gendex-staging.dag.haus"
 
-# Test!
-[env.test]
-workers_dev = true
-
-[[env.test.queues.producers]]
- queue = "gendex-test"
- binding = "GENDEX_QUEUE"
-
-[[env.test.queues.consumers]]
-  queue = "gendex-test"
-
-[env.test.vars]
-DEBUG = "true"
+[[env.staging.services]]
+binding = "GENDEX_SERVICE"
+service = "gendex-consumer-staging"
 
 # Developers! Developers! Developers!
 
@@ -82,3 +80,7 @@ account_id = "4fe12d085474d33bdcfd8e9bed4d8f95"
 
 [env.alanshaw.vars]
 DEBUG = "true"
+
+[[env.alanshaw.services]]
+binding = "GENDEX_SERVICE"
+service = "gendex-consumer-alanshaw"
