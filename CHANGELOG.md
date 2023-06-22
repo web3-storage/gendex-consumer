@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/web3-storage/gendex-consumer/compare/v1.2.0...v1.2.1) (2023-06-22)
+
+
+### Bug Fixes
+
+* add private directive ([e55ca2b](https://github.com/web3-storage/gendex-consumer/commit/e55ca2b325fb04f7b14ef1096e4929aff40c81d2))
+
 ## [1.2.0](https://github.com/web3-storage/gendex-consumer/compare/v1.1.0...v1.2.0) (2023-06-21)
 
 
