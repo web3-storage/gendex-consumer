@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0](https://github.com/web3-storage/gendex-consumer/compare/v1.7.0...v1.8.0) (2023-06-22)
+
+
+### Features
+
+* more concurrency ([7aee2a0](https://github.com/web3-storage/gendex-consumer/commit/7aee2a04ab4c001fcfb33f34086c3096a727be69))
+
 ## [1.7.0](https://github.com/web3-storage/gendex-consumer/compare/v1.6.0...v1.7.0) (2023-06-22)
 
 

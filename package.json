@@ -1,6 +1,6 @@
 {
   "name": "gendex-consumer",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "Cloudlfare queue consumer that submits blocks to gendex in order to build block indexes for uploaded DAGs.",
   "private": true,
   "main": "index.js",
