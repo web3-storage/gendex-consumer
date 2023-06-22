@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/web3-storage/gendex-consumer/compare/v1.2.1...v1.2.2) (2023-06-22)
+
+
+### Bug Fixes
+
+* queue name ([8604260](https://github.com/web3-storage/gendex-consumer/commit/8604260609d3f1a4aeaa4364774030d558697c0d))
+
 ## [1.2.1](https://github.com/web3-storage/gendex-consumer/compare/v1.2.0...v1.2.1) (2023-06-22)
 
 
