@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/web3-storage/gendex-consumer/compare/v1.4.0...v1.5.0) (2023-06-22)
+
+
+### Features
+
+* put block concurrently while queuing links ([cd4c98c](https://github.com/web3-storage/gendex-consumer/commit/cd4c98c6c97ff8451c88d3ad6112351595f94fee))
+
 ## [1.4.0](https://github.com/web3-storage/gendex-consumer/compare/v1.3.0...v1.4.0) (2023-06-22)
 
 
