@@ -100,6 +100,9 @@ async function processBatch (queue, gendex, messages) {
 
         const tasks = [gendex.putBlockIndex(blockIndex, message.body.block, links)]
         if (message.body.recursive) {
+          // batch into groups of 2:
+          // > items are limited to 128 KB each, and the total size of the array cannot exceed 256 KB
+          // > https://developers.cloudflare.com/queues/platform/javascript-apis/#queue
           for (let i = 0; i < links.length; i += 2) {
             const batch = i + 1 < links.length ? [links[i], links[i + 1]] : [links[i]]
             const task = queue.sendBatch(batch.map(link => ({
