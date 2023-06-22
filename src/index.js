@@ -7,7 +7,7 @@ import { Client } from './client.js'
 
 /** Maximum links a single block is allowed to have. */
 const MAX_BLOCK_LINKS = 3000
-const CONCURRENCY = 6
+const CONCURRENCY = 5
 
 export default {
   /**
@@ -81,7 +81,7 @@ async function processBatch (queue, gendex, messages) {
     group.push(message)
   }
 
-  for (const [, messages] of groups) {
+  await all([...groups].map(([, messages]) => async () => {
     /** @type {Set<import('cardex/api').CARLink>} */
     const shards = new LinkSet()
     messages.forEach(m => m.body.shards.forEach(s => shards.add(s)))
@@ -128,7 +128,7 @@ async function processBatch (queue, gendex, messages) {
         }
       }
     }), { concurrency: CONCURRENCY })
-  }
+  }), { concurrency: CONCURRENCY })
 }
 
 /**
