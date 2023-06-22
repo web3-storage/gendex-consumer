@@ -2,10 +2,12 @@ import * as Link from 'multiformats/link'
 import * as raw from 'multiformats/codecs/raw'
 import { Map as LinkMap } from 'lnmap'
 import { Set as LinkSet } from 'lnset'
+import all from 'p-all'
 import { Client } from './client.js'
 
 /** Maximum links a single block is allowed to have. */
 const MAX_BLOCK_LINKS = 3000
+const CONCURRENCY = 6
 
 export default {
   /**
@@ -85,7 +87,7 @@ async function processBatch (queue, gendex, messages) {
     messages.forEach(m => m.body.shards.forEach(s => shards.add(s)))
     const blockIndex = await gendex.getIndex([...shards.values()])
 
-    for (const message of messages) {
+    await all(messages.map(message => async () => {
       try {
         /** @type {import('multiformats').UnknownLink[]} */
         let links = []
@@ -117,7 +119,7 @@ async function processBatch (queue, gendex, messages) {
           message.retry()
         }
       }
-    }
+    }), { concurrency: CONCURRENCY })
   }
 }
 

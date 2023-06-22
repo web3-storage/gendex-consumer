@@ -22,6 +22,7 @@
     "lnset": "^1.0.1",
     "multiformats": "^12.0.1",
     "ndjson-web": "^1.0.0",
+    "p-all": "^5.0.0",
     "p-retry": "^5.1.2"
   },
   "devDependencies": {
