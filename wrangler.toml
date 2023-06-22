@@ -17,7 +17,7 @@ command = "npm run build:debug"
 account_id = "fffa4b4363a7e5250af8357087263b3a"
 
 [[env.production.queues.producers]]
- queue = "gendex-production"
+ queue = "gendex-prod"
  binding = "GENDEX_QUEUE"
 
 [[env.production.queues.consumers]]
