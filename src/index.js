@@ -7,7 +7,7 @@ import { Client } from './client.js'
 
 /** Maximum links a single block is allowed to have. */
 const MAX_BLOCK_LINKS = 3000
-const CONCURRENCY = 5
+const CONCURRENCY = 10
 
 export default {
   /**
