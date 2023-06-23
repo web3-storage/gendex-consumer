@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.1](https://github.com/web3-storage/gendex-consumer/compare/v1.9.0...v1.9.1) (2023-06-22)
+
+
+### Bug Fixes
+
+* more cache ([c1b079f](https://github.com/web3-storage/gendex-consumer/commit/c1b079f4a9ab327017d15c08d143d9e41c717f83))
+
 ## [1.9.0](https://github.com/web3-storage/gendex-consumer/compare/v1.8.0...v1.9.0) (2023-06-22)
 
 
