@@ -30,8 +30,15 @@ interface Message {
   root?: string
   /**
    * True to index the given block, it's links, it's links links etc.
+   * Default: false
    */
   recursive?: boolean
+  /**
+   * True to index raw leaves. Note: raw blocks linked from UnixFS directories
+   * are always indexed.
+   * Default: false
+   */
+  rawLeaves?: boolean
 }
 ```
 
