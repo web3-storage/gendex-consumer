@@ -81,7 +81,7 @@ export async function getIndex (service, shards) {
  * @param {Service} service
  * @param {import('./bindings').BlockIndex} blockIndex
  * @param {import('multiformats').UnknownLink} cid
- * @returns {Promise<import('multiformats').UnknownLink[]>}
+ * @returns {Promise<{ block: import('multiformats').UnknownLink, links: import('multiformats').UnknownLink[], meta: any }>}
  */
 export async function getBlockLinks (service, blockIndex, cid) {
   const res = await service.fetch(new URL(`/links/${cid}`, service.endpoint).toString(), {

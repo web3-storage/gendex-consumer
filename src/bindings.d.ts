@@ -33,6 +33,11 @@ export interface RawBody {
    * True to index the given block, it's links, it's links links etc.
    */
   recursive?: boolean
+  /**
+   * True to index raw leaves. Note: raw blocks linked from UnixFS directories
+   * are always indexed.
+   */
+  rawLeaves?: boolean
 }
 
 export interface Body {
@@ -53,6 +58,11 @@ export interface Body {
    * True to index the given block, it's links, it's links links etc.
    */
   recursive?: boolean
+  /**
+   * True to index raw leaves. Note: raw blocks linked from UnixFS directories
+   * are always indexed.
+   */
+  rawLeaves?: boolean
 }
 
 export type Offset = number

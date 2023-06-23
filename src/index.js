@@ -96,31 +96,43 @@ async function processBatch (queue, gendex, messages) {
       try {
         /** @type {import('multiformats').UnknownLink[]} */
         let links = []
+        /** @type {{ type?: string }} */
+        let meta = {}
         if (message.body.block.code !== raw.code) {
-          links = await gendex.getBlockLinks(blockIndex, message.body.block)
+          const info = await gendex.getBlockLinks(blockIndex, message.body.block)
           if (links.length > MAX_BLOCK_LINKS) {
             throw Object.assign(new RangeError(`maximum single block links exceeded: ${message.body.block}`), { code: 'ERR_MAX_LINKS' })
           }
+          links = info.links
+          meta = info.meta ?? {}
         }
 
         const tasks = [gendex.putBlockIndex(blockIndex, message.body.block, links)]
-        if (message.body.recursive && links.length) {
+        if (message.body.recursive) {
+          const indexableLinks = message.body.rawLeaves || meta.type?.includes('directory')
+            ? links
+            : links.filter(l => l.code !== raw.code)
           // batch into groups of 2:
           // > items are limited to 128 KB each, and the total size of the array cannot exceed 256 KB
           // > https://developers.cloudflare.com/queues/platform/javascript-apis/#queue
-          for (let i = 0; i < links.length; i += 2) {
-            const batch = i + 1 < links.length ? [links[i], links[i + 1]] : [links[i]]
+          for (let i = 0; i < indexableLinks.length; i += 2) {
+            const batch = i + 1 < indexableLinks.length
+              ? [indexableLinks[i], indexableLinks[i + 1]]
+              : [indexableLinks[i]]
             const task = queue.sendBatch(batch.map(link => ({
               body: {
-                root: message.body.root?.toString(),
                 block: link.toString(),
                 shards: message.body.shards.map(s => s.toString()),
-                recursive: true
+                root: message.body.root?.toString(),
+                recursive: true,
+                rawLeaves: message.body.rawLeaves
               }
             })))
             tasks.push(task)
           }
-          indexCache.set(root.toString(), blockIndex)
+          if (indexableLinks.length) {
+            indexCache.set(root.toString(), blockIndex)
+          }
         }
 
         await Promise.all(tasks)
@@ -161,6 +173,7 @@ function decodeMessageBody (body) {
     root: body.root ? Link.parse(body.root) : undefined,
     block: Link.parse(body.block),
     shards: body.shards.map(s => Link.parse(s)),
-    recursive: body.recursive
+    recursive: body.recursive,
+    rawLeaves: body.rawLeaves
   }
 }

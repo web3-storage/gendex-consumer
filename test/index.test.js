@@ -41,7 +41,8 @@ for (const [root, shards] of fixtures) {
         root: root.toString(),
         block: root.toString(),
         shards: shards.map(s => s.toString()),
-        recursive: true
+        recursive: true,
+        rawLeaves: true
       })
     })
     assert.ok(res.ok, await res.text())

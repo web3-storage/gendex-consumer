@@ -74,12 +74,12 @@ export async function mockGendexAPI (root, shards) {
 
       const [shard, offset] = getAnyMapEntry(blockShards)
       const block = await getBlock(`test/fixtures/${root}/${shard}.car`, offset)
-      const blockLinks = [...block.links()].map(([, cid]) => cid)
+      const links = [...block.links()].map(([, cid]) => cid)
 
-      console.log(`     ${blockCID} has ${blockLinks.length} links:`)
-      blockLinks.forEach((cid, i) => console.log(`       ${i + 1}. ${cid}`))
+      console.log(`     ${blockCID} has ${links.length} links:`)
+      links.forEach((cid, i) => console.log(`       ${i + 1}. ${cid}`))
 
-      res.write(json.encode(blockLinks))
+      res.write(json.encode({ block: blockCID, links }))
       res.end()
     } else {
       res.statusCode = 404
