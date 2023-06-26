@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.1](https://github.com/web3-storage/gendex-consumer/compare/v3.0.0...v3.0.1) (2023-06-26)
+
+
+### Bug Fixes
+
+* v0 CIDs ([556c8f7](https://github.com/web3-storage/gendex-consumer/commit/556c8f7882c1d84f724abcaba0239c24fa0e2d89))
+
 ## [3.0.0](https://github.com/web3-storage/gendex-consumer/compare/v2.0.0...v3.0.0) (2023-06-26)
 
 
