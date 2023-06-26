@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.0](https://github.com/web3-storage/gendex-consumer/compare/v1.9.1...v2.0.0) (2023-06-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* do not index raw leaves
+
+### Features
+
+* do not index raw leaves ([d91319e](https://github.com/web3-storage/gendex-consumer/commit/d91319ebc2b8a8705d62bb56fcb111dac4fbe986))
+
 ## [1.9.1](https://github.com/web3-storage/gendex-consumer/compare/v1.9.0...v1.9.1) (2023-06-22)
 
 
