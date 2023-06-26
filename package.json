@@ -31,7 +31,7 @@
     "@cloudflare/workers-types": "^4.20230518.0",
     "@ipld/car": "^5.1.1",
     "@ipld/dag-pb": "^4.0.4",
-    "carstream": "^1.0.0",
+    "carstream": "^1.0.1",
     "entail": "^2.0.1",
     "esbuild": "^0.18.4",
     "miniflare": "^3.0.1",
