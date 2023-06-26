@@ -32,7 +32,8 @@ for (const [root, shards] of fixtures) {
       queueConsumers: {
         'gendex-test': {}
       },
-      log: new Log(LogLevel.VERBOSE)
+      log: new Log(LogLevel.VERBOSE),
+      compatibilityDate: '2023-05-18'
     })
 
     const res = await mf.dispatchFetch('http://localhost:8787/send', {

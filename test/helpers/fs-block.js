@@ -1,9 +1,9 @@
 import fs from 'node:fs'
-import * as Block from 'multiformats/block'
 import * as raw from 'multiformats/codecs/raw'
 import { sha256 } from 'multiformats/hashes/sha2'
 import { readBlockHead, bytesReader } from '@ipld/car/decoder'
 import * as pb from '@ipld/dag-pb'
+import { decodeBlock } from './block.js'
 
 export const Decoders = {
   [raw.code]: raw,
@@ -30,10 +30,5 @@ export async function getBlock (path, offset) {
   const bytes = await reader.exactly(blockLength)
   await handle.close()
 
-  const decoder = Decoders[cid.code]
-  if (!decoder) throw Object.assign(new Error(`missing decoder: ${cid.code}`), { code: 'ERR_MISSING_DECODER' })
-  const hasher = Hashers[cid.multihash.code]
-  if (!hasher) throw Object.assign(new Error(`missing hasher: ${cid.multihash.code}`), { code: 'ERR_MISSING_HASHER' })
-
-  return await Block.create({ cid, bytes: bytes.slice(), codec: decoder, hasher })
+  return decodeBlock({ cid, bytes })
 }

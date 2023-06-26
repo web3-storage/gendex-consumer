@@ -1,17 +1,12 @@
+/* eslint-env browser */
 import * as Link from 'multiformats/link'
-import * as raw from 'multiformats/codecs/raw'
-import { Map as LinkMap } from 'lnmap'
-import { Set as LinkSet } from 'lnset'
+import Queue from 'p-queue'
 import all from 'p-all'
-import hashlru from 'hashlru'
 import { Client } from './client.js'
 
-/** Maximum links a single block is allowed to have. */
-const MAX_BLOCK_LINKS = 3000
-const CONCURRENCY = 10
-const MAX_CACHED_INDEXES = 1000
+/** @typedef {{ message: import('@cloudflare/workers-types').Message<import('./bindings').Body>, indexData: import('./bindings').BlockIndexData }} BatchItem */
 
-const indexCache = hashlru(MAX_CACHED_INDEXES)
+const BATCH_SIZE = 100
 
 export default {
   /**
@@ -37,7 +32,6 @@ export default {
       if (reqURL.pathname.startsWith('/send')) {
         await env.GENDEX_QUEUE.send(message)
       } else {
-        if (message.recursive) throw new Error('recursive not supported')
         const client = new Client(new URL(env.GENDEX_API_URL), env.GENDEX_SERVICE ?? globalThis)
         const messages = [
           decodeMessage({
@@ -48,8 +42,7 @@ export default {
             retry: () => {}
           })
         ]
-        const queue = { sendBatch: async () => {} }
-        await processBatch(queue, client, messages)
+        await processBatch(client, messages)
       }
     } catch (err) {
       console.error(err)
@@ -64,89 +57,43 @@ export default {
   async queue (batch, env) {
     const client = new Client(new URL(env.GENDEX_API_URL), env.GENDEX_SERVICE ?? globalThis)
     const messages = batch.messages.map(decodeMessage)
-    await processBatch(env.GENDEX_QUEUE, client, messages)
+    await processBatch(client, messages)
   }
 }
 
 /**
- * @param {Pick<import('@cloudflare/workers-types').Queue<import('./bindings').RawBody>, 'sendBatch'>} queue
  * @param {Client} gendex
  * @param {import('@cloudflare/workers-types').Message<import('./bindings').Body>[]} messages
  */
-async function processBatch (queue, gendex, messages) {
-  /** @type {Map<import('multiformats').UnknownLink, import('@cloudflare/workers-types').Message<import('./bindings').Body>[]>} */
-  const groups = new LinkMap()
-  for (const message of messages) {
-    let group = groups.get(message.body.root ?? message.body.block)
-    if (!group) {
-      group = []
-      groups.set(message.body.root ?? message.body.block, group)
-    }
-    group.push(message)
-  }
+async function processBatch (gendex, messages) {
+  const queue = new Queue({ concurrency: 6 })
+  /** @type {BatchItem[]} */
+  let batch = []
 
-  await all([...groups].map(([root, messages]) => async () => {
-    /** @type {Set<import('cardex/api').CARLink>} */
-    const shards = new LinkSet()
-    messages.forEach(m => m.body.shards.forEach(s => shards.add(s)))
-    /** @type {import('./bindings').BlockIndex} */
-    const blockIndex = indexCache.get(root.toString()) ?? await gendex.getIndex([...shards.values()])
+  /** @param {BatchItem[]} batch */
+  const addBatchToQueue = batch => queue.add(async () => {
+    await gendex.putIndexes(batch.map(item => item.indexData))
+    batch.forEach(item => item.message.ack())
+  })
 
-    await all(messages.map(message => async () => {
-      try {
-        /** @type {import('multiformats').UnknownLink[]} */
-        let links = []
-        /** @type {{ type?: string }} */
-        let meta = {}
-        if (message.body.block.code !== raw.code) {
-          const info = await gendex.getBlockLinks(blockIndex, message.body.block)
-          if (links.length > MAX_BLOCK_LINKS) {
-            throw Object.assign(new RangeError(`maximum single block links exceeded: ${message.body.block}`), { code: 'ERR_MAX_LINKS' })
-          }
-          links = info.links
-          meta = info.meta ?? {}
-        }
-
-        const tasks = [gendex.putBlockIndex(blockIndex, message.body.block, links)]
-        if (message.body.recursive) {
-          const indexableLinks = message.body.rawLeaves || meta.type?.includes('directory')
-            ? links
-            : links.filter(l => l.code !== raw.code)
-          // batch into groups of 2:
-          // > items are limited to 128 KB each, and the total size of the array cannot exceed 256 KB
-          // > https://developers.cloudflare.com/queues/platform/javascript-apis/#queue
-          for (let i = 0; i < indexableLinks.length; i += 2) {
-            const batch = i + 1 < indexableLinks.length
-              ? [indexableLinks[i], indexableLinks[i + 1]]
-              : [indexableLinks[i]]
-            const task = queue.sendBatch(batch.map(link => ({
-              body: {
-                block: link.toString(),
-                shards: message.body.shards.map(s => s.toString()),
-                root: message.body.root?.toString(),
-                recursive: true,
-                rawLeaves: message.body.rawLeaves
-              }
-            })))
-            tasks.push(task)
-          }
-          if (indexableLinks.length) {
-            indexCache.set(root.toString(), blockIndex)
-          }
-        }
-
-        await Promise.all(tasks)
-        message.ack()
-      } catch (err) {
-        if (err.code === 'ERR_MAX_LINKS') {
-          message.ack() // do not retry when block exceeds max links
-        } else {
-          console.error(err)
-          message.retry()
+  await all(messages.map(message => async () => {
+    const indexes = await gendex.generateIndexes(message.body.shards)
+    await indexes.pipeTo(new WritableStream({
+      write (indexData) {
+        batch.push({ indexData, message })
+        if (batch.length >= BATCH_SIZE) {
+          addBatchToQueue(batch)
+          batch = []
         }
       }
-    }), { concurrency: CONCURRENCY })
-  }), { concurrency: CONCURRENCY })
+    }))
+  }, { concurrency: 3 })) // we only get 6 concurrent sub-requests
+
+  if (batch.length) {
+    addBatchToQueue(batch)
+  }
+
+  await queue.onIdle()
 }
 
 /**
@@ -172,8 +119,6 @@ function decodeMessageBody (body) {
   return {
     root: body.root ? Link.parse(body.root) : undefined,
     block: Link.parse(body.block),
-    shards: body.shards.map(s => Link.parse(s)),
-    recursive: body.recursive,
-    rawLeaves: body.rawLeaves
+    shards: body.shards.map(s => Link.parse(s))
   }
 }

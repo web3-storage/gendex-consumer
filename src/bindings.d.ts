@@ -29,17 +29,6 @@ export interface RawBody {
    * the group.
    */
   root?: string
-  /**
-   * True to index the given block, it's links, it's links links etc.
-   * Default: false
-   */
-  recursive?: boolean
-  /**
-   * True to index raw leaves. Note: raw blocks linked from UnixFS directories
-   * are always indexed.
-   * Default: false
-   */
-  rawLeaves?: boolean
 }
 
 export interface Body {
@@ -56,20 +45,15 @@ export interface Body {
    * same DAG so index data has to be read only once for the group.
    */
   root?: UnknownLink
-  /**
-   * True to index the given block, it's links, it's links links etc.
-   * Default: false
-   */
-  recursive?: boolean
-  /**
-   * True to index raw leaves. Note: raw blocks linked from UnixFS directories
-   * are always indexed.
-   * Default: false
-   */
-  rawLeaves?: boolean
 }
 
-export type Offset = number
+export interface IndexData {
+  shard: CARLink
+  block: UnknownLink
+  offset: number
+  length: number
+}
 
-export interface BlockIndex extends Map<UnknownLink, Map<CARLink, Offset>> {}
-export interface ShardIndex extends Map<CARLink, Map<UnknownLink, Offset>> {}
+export interface BlockIndexData extends IndexData {
+  links: IndexData[]
+}
