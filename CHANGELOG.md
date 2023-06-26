@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.0.0](https://github.com/web3-storage/gendex-consumer/compare/v2.0.0...v3.0.0) (2023-06-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* combined index and links
+
+### Features
+
+* combined index and links ([97d8356](https://github.com/web3-storage/gendex-consumer/commit/97d8356fee958e81c756addf9478dd6f03cfa7bb))
+
 ## [2.0.0](https://github.com/web3-storage/gendex-consumer/compare/v1.9.1...v2.0.0) (2023-06-23)
 
 
