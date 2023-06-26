@@ -46,7 +46,8 @@ for (const [root, shards] of fixtures) {
         rawLeaves: true
       })
     })
-    assert.ok(res.ok, await res.text())
+    assert.ok(res.ok)
+    console.log(await res.text())
 
     await gendexAPI.indexComplete
     gendexAPI.close()
