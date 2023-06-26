@@ -50,7 +50,9 @@ for (const [root, shards] of fixtures) {
     console.log(await res.text())
 
     await gendexAPI.indexComplete
-    gendexAPI.close()
-    mf.dispose()
+    setTimeout(() => {
+      gendexAPI.close()
+      mf.dispose()
+    }, 1000)
   }
 }
