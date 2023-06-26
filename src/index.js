@@ -72,13 +72,7 @@ async function processBatch (gendex, messages) {
 
   /** @param {BatchItem[]} batch */
   const addBatchToQueue = batch => queue.add(async () => {
-    try {
-      await gendex.putIndexes(batch.map(item => item.indexData))
-      batch.forEach(item => item.message.ack())
-    } catch (err) {
-      console.error(err)
-      batch.forEach(item => item.message.retry())
-    }
+    await gendex.putIndexes(batch.map(item => item.indexData))
   })
 
   await all(messages.map(message => async () => {
