@@ -49,7 +49,7 @@ for (const [root, shards] of fixtures) {
     assert.ok(res.ok, await res.text())
 
     await gendexAPI.indexComplete
-    gendexAPI.close()
-    mf.dispose()
+    await gendexAPI.close()
+    await mf.dispose()
   }
 }

@@ -34,7 +34,7 @@
     "carstream": "^1.0.1",
     "entail": "^2.0.1",
     "esbuild": "^0.18.4",
-    "miniflare": "^3.0.1",
+    "miniflare": "^3.0.2",
     "p-defer": "^4.0.0",
     "standard": "^17.1.0",
     "wrangler": "^3.1.0"

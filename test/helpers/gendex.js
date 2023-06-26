@@ -152,7 +152,7 @@ export async function mockGendexAPI (root, shards) {
   const { port } = server.address()
   return {
     port,
-    close: () => server.close(),
+    close: () => new Promise(resolve => server.close(resolve)),
     indexComplete: promise
   }
 }
