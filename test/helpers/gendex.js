@@ -44,7 +44,7 @@ export async function mockGendexAPI (root, shards) {
         todoCIDs.delete(indexData.block)
         console.log(`    ${todoCIDs.size} CIDs TODO`)
       })
-      if (todoCIDs.size === 0) resolve()
+      if (todoCIDs.size === 0) setTimeout(resolve)
       res.end()
     } else if (req.method === 'POST' && req.url === '/indexes/generate') {
       const chunks = []
