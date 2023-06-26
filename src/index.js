@@ -6,7 +6,7 @@ import { Client } from './client.js'
 
 /** @typedef {{ message: import('@cloudflare/workers-types').Message<import('./bindings').Body>, indexData: import('./bindings').BlockIndexData }} BatchItem */
 
-const BATCH_SIZE = 100
+const BATCH_SIZE = 25
 
 export default {
   /**
@@ -66,7 +66,7 @@ export default {
  * @param {import('@cloudflare/workers-types').Message<import('./bindings').Body>[]} messages
  */
 async function processBatch (gendex, messages) {
-  const queue = new Queue({ concurrency: 6 })
+  const queue = new Queue({ concurrency: 12 })
   /** @type {BatchItem[]} */
   let batch = []
 
