@@ -36,7 +36,7 @@ for (const [root, shards] of fixtures) {
       compatibilityDate: '2023-05-18'
     })
 
-    const res = await mf.dispatchFetch('http://localhost:8787/send', {
+    const res = await mf.dispatchFetch('http://localhost:8787/process', {
       method: 'POST',
       body: JSON.stringify({
         root: root.toString(),
