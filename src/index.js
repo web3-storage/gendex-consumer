@@ -2,6 +2,7 @@
 import * as Link from 'multiformats/link'
 import Queue from 'p-queue'
 import retry from 'p-retry'
+import all from 'p-all'
 import { Client } from './client.js'
 
 const BATCH_SIZE = 25
@@ -64,7 +65,7 @@ export default {
  * @param {import('@cloudflare/workers-types').Message<import('./bindings').Body>[]} messages
  */
 async function processBatch (gendex, messages) {
-  for (const message of messages) {
+  await all(messages.map(message => async () => {
     const queue = new Queue({ concurrency: 12 })
     /** @type {import('./bindings').BlockIndexData[]} */
     let batch = []
@@ -91,7 +92,7 @@ async function processBatch (gendex, messages) {
 
     await queue.onIdle()
     message.ack()
-  }
+  }), { concurrency: 3 })
 }
 
 /**
@@ -114,9 +115,5 @@ function decodeMessage (message) {
  * @returns {import('./bindings').Body}
  */
 function decodeMessageBody (body) {
-  return {
-    root: body.root ? Link.parse(body.root) : undefined,
-    block: Link.parse(body.block),
-    shards: body.shards.map(s => Link.parse(s))
-  }
+  return { shards: body.shards.map(s => Link.parse(s)) }
 }
