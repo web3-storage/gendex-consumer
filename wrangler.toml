@@ -21,12 +21,12 @@ services = [
 account_id = "fffa4b4363a7e5250af8357087263b3a"
 
 [[env.production.queues.producers]]
- queue = "gendex-prod"
+ queue = "gendex-production"
  binding = "GENDEX_QUEUE"
 
 [[env.production.queues.consumers]]
-  queue = "gendex-prod"
-  dead_letter_queue = "gendex-dlq-prod"
+  queue = "gendex-production"
+  dead_letter_queue = "gendex-dlq-production"
   max_batch_size = 10
   max_batch_timeout = 30
 

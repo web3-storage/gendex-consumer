@@ -1,10 +1,8 @@
 /* eslint-env browser */
 import * as Link from 'multiformats/link'
 import Queue from 'p-queue'
-import all from 'p-all'
+import retry from 'p-retry'
 import { Client } from './client.js'
-
-/** @typedef {{ message: import('@cloudflare/workers-types').Message<import('./bindings').Body>, indexData: import('./bindings').BlockIndexData }} BatchItem */
 
 const BATCH_SIZE = 25
 
@@ -66,33 +64,34 @@ export default {
  * @param {import('@cloudflare/workers-types').Message<import('./bindings').Body>[]} messages
  */
 async function processBatch (gendex, messages) {
-  const queue = new Queue({ concurrency: 12 })
-  /** @type {BatchItem[]} */
-  let batch = []
+  for (const message of messages) {
+    const queue = new Queue({ concurrency: 12 })
+    /** @type {import('./bindings').BlockIndexData[]} */
+    let batch = []
 
-  /** @param {BatchItem[]} batch */
-  const addBatchToQueue = batch => queue.add(async () => {
-    await gendex.putIndexes(batch.map(item => item.indexData))
-  })
+    /** @param {import('./bindings').BlockIndexData[]} batch */
+    const addBatchToQueue = batch => queue.add(async () => {
+      await retry(() => gendex.putIndexes(batch), { retries: 2 })
+    })
 
-  await all(messages.map(message => async () => {
     const indexes = await gendex.generateIndexes(message.body.shards)
     await indexes.pipeTo(new WritableStream({
       write (indexData) {
-        batch.push({ indexData, message })
+        batch.push(indexData)
         if (batch.length >= BATCH_SIZE) {
           addBatchToQueue(batch)
           batch = []
         }
       }
     }))
-  }, { concurrency: 3 })) // we only get 6 concurrent sub-requests
 
-  if (batch.length) {
-    addBatchToQueue(batch)
+    if (batch.length) {
+      addBatchToQueue(batch)
+    }
+
+    await queue.onIdle()
+    message.ack()
   }
-
-  await queue.onIdle()
 }
 
 /**
