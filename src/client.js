@@ -18,7 +18,7 @@ export class Client {
   }
 
   /**
-   * @param {import('./bindings').BlockIndexData[]} indexDatas
+   * @param {import('./bindings').DAGJSONBlockIndexData[]} indexDatas
    */
   putIndexes (indexDatas) {
     return putIndexes(this, indexDatas)
@@ -35,12 +35,12 @@ export class Client {
 /**
  * Write block indexes.
  * @param {Service} service
- * @param {import('./bindings').BlockIndexData[]} indexDatas
+ * @param {import('./bindings').DAGJSONBlockIndexData[]} indexDatas
  */
 export async function putIndexes (service, indexDatas) {
   const res = await service.fetch(new URL('/indexes', service.endpoint).toString(), {
     method: 'POST',
-    body: json.encode(indexDatas)
+    body: JSON.stringify(indexDatas)
   })
   if (!res.ok) throw new Error(`unexpected block index response status: ${res.status}`)
 }
@@ -56,6 +56,6 @@ export async function generateIndexes (service, shards) {
     body: json.encode(shards)
   })
   if (!res.body) throw new Error('missing body')
-  const ndjsonParser = /** @type {Parse<import('./bindings').BlockIndexData>} */(new Parse(json.parse))
+  const ndjsonParser = /** @type {Parse<import('./bindings').DAGJSONBlockIndexData>} */(new Parse())
   return res.body.pipeThrough(ndjsonParser)
 }

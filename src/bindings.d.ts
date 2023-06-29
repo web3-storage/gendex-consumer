@@ -38,3 +38,14 @@ export interface IndexData {
 export interface BlockIndexData extends IndexData {
   links: IndexData[]
 }
+
+export interface DAGJSONIndexData {
+  shard: { '/': string }
+  block: { '/': string }
+  offset: number
+  length: number
+}
+
+export interface DAGJSONBlockIndexData extends DAGJSONIndexData {
+  links: DAGJSONIndexData[]
+}

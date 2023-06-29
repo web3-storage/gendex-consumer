@@ -67,10 +67,10 @@ export default {
 async function processBatch (gendex, messages) {
   await all(messages.map(message => async () => {
     const queue = new Queue({ concurrency: 12 })
-    /** @type {import('./bindings').BlockIndexData[]} */
+    /** @type {import('./bindings').DAGJSONBlockIndexData[]} */
     let batch = []
 
-    /** @param {import('./bindings').BlockIndexData[]} batch */
+    /** @param {import('./bindings').DAGJSONBlockIndexData[]} batch */
     const addBatchToQueue = batch => queue.add(async () => {
       await retry(() => gendex.putIndexes(batch), { retries: 2 })
     })
