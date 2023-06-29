@@ -5,7 +5,7 @@ import retry from 'p-retry'
 import all from 'p-all'
 import { Client } from './client.js'
 
-const BATCH_SIZE = 25
+const BATCH_SIZE = 50
 
 export default {
   /**

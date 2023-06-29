@@ -27,7 +27,7 @@ account_id = "fffa4b4363a7e5250af8357087263b3a"
 [[env.production.queues.consumers]]
   queue = "gendex-production"
   dead_letter_queue = "gendex-dlq-production"
-  max_batch_size = 2
+  max_batch_size = 1
   max_batch_timeout = 30
 
 [env.production.build]
