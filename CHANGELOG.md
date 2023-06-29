@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.3.1](https://github.com/web3-storage/gendex-consumer/compare/v3.3.0...v3.3.1) (2023-06-29)
+
+
+### Bug Fixes
+
+* tweak retry config ([2e871a9](https://github.com/web3-storage/gendex-consumer/commit/2e871a9967e07600908e45023550624c2592030a))
+
 ## [3.3.0](https://github.com/web3-storage/gendex-consumer/compare/v3.2.0...v3.3.0) (2023-06-29)
 
 
