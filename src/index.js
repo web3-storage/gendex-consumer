@@ -72,7 +72,7 @@ async function processBatch (gendex, messages) {
 
     /** @param {import('./bindings').DAGJSONBlockIndexData[]} batch */
     const addBatchToQueue = batch => queue.add(async () => {
-      await retry(() => gendex.putIndexes(batch), { retries: 2 })
+      await retry(() => gendex.putIndexes(batch), { retries: 2, minTimeout: 100, factor: 1 })
     })
 
     const indexes = await gendex.generateIndexes(message.body.shards)

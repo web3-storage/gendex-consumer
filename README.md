@@ -14,20 +14,10 @@ Send a message to the queue with the format:
 ```ts
 interface Message {
   /**
-   * Base encoded string CID of block to index.
-   */
-  block: string
-  /**
    * Base encoded string CIDs of CAR shards the block (and it's descendents)
    * can be found.
    */
   shards: string[]
-  /**
-   * Base encoded string CID of parent DAG (if known). Used to group messages
-   * in a batch from the same DAG so index data has to be read only once for
-   * the group.
-   */
-  root?: string
 }
 ```
 
