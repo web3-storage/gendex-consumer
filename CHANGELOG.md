@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.3.0](https://github.com/web3-storage/gendex-consumer/compare/v3.2.0...v3.3.0) (2023-06-29)
+
+
+### Features
+
+* increase batch size ([f7b483c](https://github.com/web3-storage/gendex-consumer/commit/f7b483c26ab5072db80cfb06979b4a01ff12a3c3))
+
 ## [3.2.0](https://github.com/web3-storage/gendex-consumer/compare/v3.1.2...v3.2.0) (2023-06-29)
 
 
